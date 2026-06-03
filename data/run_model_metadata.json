@@ -1,0 +1,10 @@
+{
+  "T": 1000,
+  "m": 5,
+  "n": 20,
+  "latent_dim": 3,
+  "k_max": 10,
+  "epsilon": 0.01,
+  "final_iteration": 4,
+  "final_loglike": 58740.71335965912
+}
