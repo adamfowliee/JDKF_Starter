@@ -2,18 +2,10 @@ import numpy as np
 
 
 class diffusion:
-    """Build an RBF diffusion matrix from a matrix of datapoints.
-
-    The implementation is backend-agnostic: pass ``numpy`` now, or ``cupy``
-    later if you want the same code path to run on the GPU.
-    """
 
     def __init__(self, data, epsilon=None, xp=np):
         self.xp = xp
         self.data = xp.asarray(data)
-
-        if self.data.ndim != 2:
-            raise ValueError("data must be a 2D matrix of shape (n_samples, n_features)")
 
         self.distance_matrix = self._pairwise_squared_distances(self.data)
         self.epsilon = self._resolve_epsilon(epsilon)
@@ -35,23 +27,15 @@ class diffusion:
 
     def _resolve_epsilon(self, epsilon):
         if epsilon is not None:
-            if epsilon <= 0:
-                raise ValueError("epsilon must be positive")
             return epsilon
 
         xp = self.xp
         n_samples = self.distance_matrix.shape[0]
-        if n_samples < 2:
-            raise ValueError("at least two datapoints are required to estimate epsilon")
 
         mask = ~xp.eye(n_samples, dtype=bool)
         off_diagonal_distances = self.distance_matrix[mask]
-        if off_diagonal_distances.size == 0:
-            raise ValueError("cannot estimate epsilon from an empty distance set")
 
         estimated = xp.median(off_diagonal_distances)
-        if float(estimated) <= 0:
-            raise ValueError("median pairwise distance must be positive to estimate epsilon")
         return estimated
 
     def _rbf_kernel(self, distances, epsilon):
@@ -59,8 +43,6 @@ class diffusion:
 
     def _row_normalize(self, matrix):
         row_sums = self.xp.sum(matrix, axis=1, keepdims=True)
-        if self.xp.any(row_sums == 0):
-            raise ValueError("cannot normalize a matrix with a zero row sum")
         return matrix / row_sums
 
     def get_distance_matrix(self):
