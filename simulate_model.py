@@ -44,6 +44,9 @@ class ToyMarketSimulator:
             self.theta[t + 1] = self.theta[t] + drift * self.dt + diffusion
 
     def generate_covariates(self):
+
+        # Restrict these to a manifold
+        
         self.X = np.zeros((self.T, 5))
 
         self.X[:,0] = np.sin(self.theta[:,0])
