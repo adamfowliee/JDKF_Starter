@@ -138,22 +138,21 @@ class embedding:
         lo = max(i-5, 0); hi = min(i+5, len(self.grid)-1)
         self.eps = float(np.sqrt(self.grid[lo]*self.grid[hi]))
 
-    def diffusion_map(self, data, eps, alpha=1, k=4):
+    def diffusion_map(self, data, k=4):
         Dsq = squareform(pdist(data)**2)
-        Wm = np.exp(-Dsq/eps); self.q = Wm.sum(1)
-        Wa = Wm/np.outer(self.q**alpha, self.q**alpha)
+        Wm = np.exp(-Dsq/self.eps); self.q = Wm.sum(1)
+        Wa = Wm/np.outer(self.q**self.alpha, self.q**self.alpha)
         da = Wa.sum(1); Dis = 1.0/np.sqrt(da)
         S = Dis[:, None]*Wa*Dis[None, :]                
         self.w, self.v = np.linalg.eigh(S)
         idx = np.argsort(self.w)[::-1]; self.w, self.v = self.w[idx], self.v[:, idx]
         phi = Dis[:, None]*self.v                             
         self.Psi = phi[:, 1:k+1]*self.w[1:k+1]                     
-        
     
     def get_embedding(self, data, alpha=1, k=4):
         self.alpha = alpha; self.k = k
         self.select_epsilon(data)
-        self.diffusion_map(data, self.eps, alpha, k)
+        self.diffusion_map(data, k)
 
         return self.w, self.Psi
     
