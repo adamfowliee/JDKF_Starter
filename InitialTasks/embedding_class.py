@@ -156,8 +156,8 @@ class embedding:
 
         return self.w, self.Psi
     
+    
 class MLE:
-   
     def ou_mle(self, Z, dt):
         Z0, Z1 = Z[:-1], Z[1:]
         M = Z0.size                                       
@@ -170,31 +170,4 @@ class MLE:
         I_a = (Z0*Z0).sum()/s2_innov                      
         se_kappa = np.sqrt(1.0/I_a)/(a*dt)                
         return kappa, sigma, a, (kappa - 1.96*se_kappa, kappa + 1.96*se_kappa)
-
-
-if __name__ == "__main__":
-    latent = synthetic_data_generation(rand_seed=LATENT_SEED)
-    latent.thin_trajectories(gap=10, burnin=500)
-
-    obs = observation_map(latent.X_geom, D=100, feature_seed=FEATURE_SEED)
-    clean = obs.clean_state()
-
-    noise_levels = [0.0, 0.05, 0.1, 0.2]
-    embeddings = {}
-
-    for sigma_eta in noise_levels:
-        Zobs = obs.sample_observation(sigma_eta)
-        dm = embedding()
-        w, Psi = dm.get_embedding(Zobs, alpha=1, k=4)
-        embeddings[sigma_eta] = {
-            "Zobs": Zobs,
-            "eigenvalues": w,
-            "diffusion_coordinates": Psi,
-            "epsilon": dm.eps,
-        }
-
-    print("latent X_geom shape:", latent.X_geom.shape)
-    print("clean G shape:", clean["Gclean"].shape)
-    for sigma_eta, result in embeddings.items():
-        print(f"sigma_eta={sigma_eta}: Zobs shape={result['Zobs'].shape}, epsilon={result['epsilon']:.4g}")
 
