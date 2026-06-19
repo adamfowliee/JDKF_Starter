@@ -71,12 +71,15 @@ class synthetic_data_generation:
         ax.set_title(r'Trajectory $X_t$ on $S^2$')
         plt.show()
 
-    def thin_trajectories(self, gap=10, burnin=500):
+    def thin_trajectories(self, gap=10, burnin=500, val=50):
         self.gap = gap
         self.burnin = burnin
+        self.val = val
         self.dt_eff = gap * self.dt
-        self.X_geom = self.X[burnin::gap]
-        self.Y_geom = self.Y[burnin::gap]
+        self.X_geom = self.X[burnin:-val:gap]
+        self.Y_geom = self.Y[burnin:-val:gap]
+        self.X_test = self.X[-val::gap]
+        self.Y_test = self.Y[-val::gap]
         self.n_geom = self.X_geom.shape[0]
 
 
@@ -137,13 +140,13 @@ class embedding:
 
     def diffusion_map(self, data, eps, alpha=1, k=4):
         Dsq = squareform(pdist(data)**2)
-        Wm = np.exp(-Dsq/eps); q = Wm.sum(1)
-        Wa = Wm/np.outer(q**alpha, q**alpha)
+        Wm = np.exp(-Dsq/eps); self.q = Wm.sum(1)
+        Wa = Wm/np.outer(self.q**alpha, self.q**alpha)
         da = Wa.sum(1); Dis = 1.0/np.sqrt(da)
         S = Dis[:, None]*Wa*Dis[None, :]                
-        self.w, v = np.linalg.eigh(S)
-        idx = np.argsort(self.w)[::-1]; self.w, v = self.w[idx], v[:, idx]
-        phi = Dis[:, None]*v                             
+        self.w, self.v = np.linalg.eigh(S)
+        idx = np.argsort(self.w)[::-1]; self.w, self.v = self.w[idx], self.v[:, idx]
+        phi = Dis[:, None]*self.v                             
         self.Psi = phi[:, 1:k+1]*self.w[1:k+1]                     
         
     
