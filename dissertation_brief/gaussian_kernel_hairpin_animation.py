@@ -417,6 +417,7 @@ def export_gaussian_hairpin_animation(
         "radius_large": radius_large,
         "total_seconds": total_seconds,
         "n_frames": n_frames,
+        "final W": gaussian_affinity(pts, focal_idx, eps_large)
     }
     if return_objects:
         result["animation"] = ani

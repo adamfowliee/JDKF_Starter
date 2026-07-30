@@ -4,6 +4,7 @@ def set_paper_style(use_latex=True):
     plt.rcParams.update({
         # LaTeX-style fonts
         "text.usetex": use_latex,
+        "text.latex.preamble": r"\usepackage{amssymb}",
         "font.family": "serif",
         "font.serif": ["Computer Modern Roman"],
 
